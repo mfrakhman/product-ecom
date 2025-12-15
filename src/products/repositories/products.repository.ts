@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, Like, ILike } from 'typeorm';
 import { Product } from '../entities/product.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -15,8 +15,15 @@ export class ProductsRepository {
     return this.productRepository.save(newProduct);
   }
 
-  findAll() {
-    return this.productRepository.find();
+  findAll(page = 1, limit = 10, query?: string) {
+    const skip = (page - 1) * limit;
+    const where = query ? { name: ILike(`%${query}%`) } : {};
+    return this.productRepository.find({
+      where,
+      skip,
+      take: limit,
+      order: { createdAt: 'DESC' },
+    });
   }
 
   findById(id: string) {

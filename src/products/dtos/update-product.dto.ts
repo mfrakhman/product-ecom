@@ -1,8 +1,7 @@
-import { IsEnum, IsInt, IsString, Min } from 'class-validator';
-import { Category } from '../entities/product.entity';
+import { IsInt, IsString, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateProductDto {
+export class UpdateProductDto {
   @ApiProperty()
   @IsString()
   name: string;
@@ -10,10 +9,6 @@ export class CreateProductDto {
   @ApiProperty()
   @IsString()
   description: string;
-
-  @ApiProperty({ enum: Category })
-  @IsEnum(Category)
-  category: Category;
 
   @ApiProperty()
   @IsInt()
