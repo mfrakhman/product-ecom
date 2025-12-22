@@ -24,6 +24,17 @@ export class ProductsService {
     return { message: 'Product retrieved successfully', data: product };
   }
 
+  async findSkusById(id: string) {
+    const product = await this.productsRepository.findSkusById(id);
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+    return {
+      message: 'Product SKUs retrieved successfully',
+      data: product.skus,
+    };
+  }
+
   async update(id: string, updateData: UpdateProductDto) {
     const product = await this.productsRepository.findById(id);
     if (!product) {

@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dtos/create-product.dto';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { UpdateProductDto } from './dtos/update-product.dto';
 
 @ApiTags('Products')
@@ -35,6 +35,11 @@ export class ProductsController {
   @Get(':id')
   getProduct(@Param('id') id: string) {
     return this.productsService.findById(id);
+  }
+
+  @Get('/:productId/skus')
+  getProductSkus(@Param('productId') productId: string) {
+    return this.productsService.findSkusById(productId);
   }
 
   @Patch(':id')

@@ -27,7 +27,17 @@ export class ProductsRepository {
   }
 
   findById(id: string) {
-    return this.productRepository.findOneBy({ id });
+    return this.productRepository.findOne({
+      where: { id },
+      relations: ['skus'],
+    });
+  }
+
+  findSkusById(id: string) {
+    return this.productRepository.findOne({
+      where: { id },
+      relations: ['skus'],
+    });
   }
 
   update(id: string, updateData: Partial<Product>) {

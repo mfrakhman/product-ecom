@@ -1,7 +1,10 @@
+import { Sku } from '../../skus/entities/sku.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -38,4 +41,7 @@ export class Product {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Sku, (sku) => sku.product)
+  skus: Sku[];
 }
