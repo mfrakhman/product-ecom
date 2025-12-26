@@ -34,4 +34,9 @@ export class CreateSkuDto {
   @ApiProperty()
   @IsUUID()
   product_id: string;
+
+  @ApiProperty()
+  @IsInt()
+  @Min(0)
+  quantity: number;
 }

@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Sku } from './entities/sku.entity';
 import { ProductsModule } from '../products/products.module';
 import { SkusRepository } from './repositories/skus.repository';
+import { StocksModule } from '../stocks/stocks.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Sku]), ProductsModule],
+  imports: [TypeOrmModule.forFeature([Sku]), ProductsModule, StocksModule],
   providers: [SkusService, SkusRepository],
   controllers: [SkusController],
 })

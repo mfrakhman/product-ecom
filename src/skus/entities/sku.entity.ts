@@ -4,8 +4,10 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { Product } from '../../products/entities/product.entity';
+import { Stock } from '../../stocks/entities/stock.entity';
 
 @Entity()
 export class Sku {
@@ -36,4 +38,7 @@ export class Sku {
   @ManyToOne(() => Product, (product) => product.skus, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'product_id' })
   product: Product;
+
+  @OneToOne(() => Stock, (stock) => stock.sku)
+  stock: Stock;
 }
