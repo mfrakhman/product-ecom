@@ -3,7 +3,8 @@ import { SkusRepository } from './repositories/skus.repository';
 import { CreateSkuDto } from './dtos/create-sku.dto';
 import { ProductsRepository } from '../products/repositories/products.repository';
 import { StocksService } from '../stocks/stocks.service';
-import { DataSource } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
+import { restockSkuDto } from './dtos/restock-sku.dto';
 
 @Injectable()
 export class SkusService {
@@ -58,6 +59,18 @@ export class SkusService {
 
   async update() {
     //
+  }
+
+  async restockSku(skuId: string, dto: restockSkuDto) {
+    const { quantity } = dto;
+    return this.dataSource.transaction(async (manager) => {
+      const sku = await this.skusRepository.findById(skuId);
+      if (!sku) {
+        throw new NotFoundException('SKU not found');
+      }
+      await this.stocksService.increaseStock(skuId, quantity, manager);
+      return { message: 'SKU restocked successfully' };
+    });
   }
 
   async deactivate() {

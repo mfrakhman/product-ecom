@@ -9,6 +9,7 @@ import {
 import { SkusService } from './skus.service';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { CreateSkuDto } from './dtos/create-sku.dto';
+import { restockSkuDto } from './dtos/restock-sku.dto';
 
 @ApiTags('SKUs')
 @Controller('skus')
@@ -28,5 +29,10 @@ export class SkusController {
   @Get(':id')
   async getById(@Param('id') id: string) {
     return this.skusService.findById(id);
+  }
+
+  @Post(':skuId/restock')
+  async restockSku(@Param('skuId') skuId: string, @Body() dto: restockSkuDto) {
+    return this.skusService.restockSku(skuId, dto);
   }
 }

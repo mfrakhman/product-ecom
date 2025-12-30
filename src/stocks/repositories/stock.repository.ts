@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, EntityManager } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Stock } from '../entities/stock.entity';
 
@@ -17,5 +17,34 @@ export class StocksRepository {
 
   findById(id: string) {
     return this.stockRepository.findOne({ where: { id }, relations: ['sku'] });
+  }
+
+  async increaseStock(
+    skuId: string,
+    quantity: number,
+    manager: EntityManager,
+  ): Promise<void> {
+    await manager
+      .createQueryBuilder()
+      .update(Stock)
+      .set({ amount: () => `"amount" + ${quantity}` })
+      .where('sku_Id = :skuId', { skuId })
+      .execute();
+  }
+
+  async decreaseStock(
+    skuId: string,
+    quantity: number,
+    manager: EntityManager,
+  ): Promise<Boolean> {
+    const result = await manager
+      .createQueryBuilder()
+      .update(Stock)
+      .set({ amount: () => `"amount" - ${quantity}` })
+      .where('sku_Id = :skuId', { skuId })
+      .andWhere('"amount" >= :quantity', { quantity })
+      .execute();
+
+    return result.affected === 1;
   }
 }

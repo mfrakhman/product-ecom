@@ -25,4 +25,37 @@ export class StocksService {
     });
     return await manager.save(stock);
   }
+
+  async increaseStock(skuId: string, quantity: number, manager: EntityManager) {
+    if (quantity <= 0) {
+      throw new BadRequestException('Quantity to increase must be positive');
+    }
+
+    const stock = await this.stocksRepository.increaseStock(
+      skuId,
+      quantity,
+      manager,
+    );
+    return stock;
+  }
+
+  async decreaseStock(
+    skuId: string,
+    quantity: number,
+    manager: EntityManager,
+  ): Promise<void> {
+    if (quantity <= 0) {
+      throw new BadRequestException('Quantity to decrease must be positive');
+    }
+    const success = await this.stocksRepository.decreaseStock(
+      skuId,
+      quantity,
+      manager,
+    );
+    if (!success) {
+      throw new BadRequestException(
+        'Insufficient stock to decrease by the specified quantity',
+      );
+    }
+  }
 }
