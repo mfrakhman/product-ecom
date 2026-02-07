@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Sku } from '../entities/sku.entity';
 
@@ -36,5 +36,12 @@ export class SkusRepository {
 
   delete(id: string) {
     return this.skuRepository.delete(id);
+  }
+
+  async findActiveIdsByIds(ids: string[]) {
+    return this.skuRepository.find({
+      select: ['id'],
+      where: { id: In(ids), isActive: true },
+    });
   }
 }

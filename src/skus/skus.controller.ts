@@ -35,4 +35,9 @@ export class SkusController {
   async restockSku(@Param('skuId') skuId: string, @Body() dto: restockSkuDto) {
     return this.skusService.restockSku(skuId, dto);
   }
+
+  @Post('/validate')
+  async validateSkus(@Body() body: { skuIds: string[] }) {
+    return this.skusService.validateSkus(body.skuIds);
+  }
 }

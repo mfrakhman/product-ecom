@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { SkusRepository } from './repositories/skus.repository';
 import { CreateSkuDto } from './dtos/create-sku.dto';
 import { ProductsRepository } from '../products/repositories/products.repository';
@@ -71,6 +75,23 @@ export class SkusService {
       await this.stocksService.increaseStock(skuId, quantity, manager);
       return { message: 'SKU restocked successfully' };
     });
+  }
+
+  async validateSkus(skuIds: string[]) {
+    if (!Array.isArray(skuIds) || skuIds.length === 0) {
+      throw new BadRequestException('skuIds must be a non-empty array');
+    }
+
+    const uniqueIds = Array.from(new Set(skuIds));
+    const existingSkus =
+      await this.skusRepository.findActiveIdsByIds(uniqueIds);
+    const existingIds = new Set(existingSkus.map((s) => s.id));
+    const invalid = uniqueIds.filter((id) => !existingIds.has(id));
+
+    return {
+      valid: uniqueIds.filter((id) => existingIds.has(id)),
+      invalid,
+    };
   }
 
   async deactivate() {

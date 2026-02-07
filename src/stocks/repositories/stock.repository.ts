@@ -28,7 +28,7 @@ export class StocksRepository {
       .createQueryBuilder()
       .update(Stock)
       .set({ amount: () => `"amount" + ${quantity}` })
-      .where('sku_Id = :skuId', { skuId })
+      .where('sku_id = :skuId', { skuId })
       .execute();
   }
 
@@ -41,7 +41,7 @@ export class StocksRepository {
       .createQueryBuilder()
       .update(Stock)
       .set({ amount: () => `"amount" - ${quantity}` })
-      .where('sku_Id = :skuId', { skuId })
+      .where('sku_id = :skuId', { skuId })
       .andWhere('"amount" >= :quantity', { quantity })
       .execute();
 

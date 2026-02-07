@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SkusModule } from './skus/skus.module';
 import { StocksModule } from './stocks/stocks.module';
+import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { StocksModule } from './stocks/stocks.module';
     ProductsModule,
     SkusModule,
     StocksModule,
+    RabbitmqModule,
   ],
 })
 export class AppModule {}
