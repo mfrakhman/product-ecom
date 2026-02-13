@@ -1,4 +1,4 @@
-import { IsEnum, IsInt, IsString, Min } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
 import { Category } from '../entities/product.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -15,13 +15,4 @@ export class CreateProductDto {
   @IsEnum(Category)
   category: Category;
 
-  @ApiProperty()
-  @IsInt()
-  @Min(0)
-  price: number;
-
-  @ApiProperty()
-  @IsInt()
-  @Min(0)
-  stock: number;
 }

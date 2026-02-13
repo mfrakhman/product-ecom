@@ -3,6 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import * as amqplib from 'amqplib';
 import { OrderEventsService } from './order-events.service';
 import { OrderCreatedEvent } from './events/order-created.event';
+import { RabbitmqPublisher } from './rabbitmq.publisher';
+import { InsufficientStockError } from 'src/stocks/errors/insufficient-stock.error';
+import { OrderStockFailedEvent } from './events/order-stock-failed.event';
 
 @Injectable()
 export class RabbitmqConsumer implements OnModuleInit, OnModuleDestroy {
@@ -13,6 +16,7 @@ export class RabbitmqConsumer implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly configService: ConfigService,
     private readonly orderEventsService: OrderEventsService,
+    private readonly rabbitmqPublisher: RabbitmqPublisher,
   ) {}
 
   async onModuleInit() {
@@ -53,6 +57,21 @@ export class RabbitmqConsumer implements OnModuleInit, OnModuleDestroy {
         await this.orderEventsService.onOrderCreated(payload);
         this.channel?.ack(msg);
       } catch (error) {
+        if (error instanceof InsufficientStockError) {
+          const content = JSON.parse(msg.content.toString());
+          const payload: OrderCreatedEvent = content?.data ?? content;
+          const failure = new OrderStockFailedEvent(
+            payload.orderId,
+            error.message,
+            payload.items,
+          );
+          await this.rabbitmqPublisher.publish('order.stock_failed', failure);
+          this.logger.warn(
+            `[order.created] stock failed for order ${payload.orderId}`,
+          );
+          this.channel?.ack(msg);
+          return;
+        }
         const err = error as Error;
         this.logger.error('Failed to process order.created', err.stack);
         this.channel?.nack(msg, false, false);

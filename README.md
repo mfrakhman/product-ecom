@@ -25,6 +25,32 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Order Flow Diagram
+
+```mermaid
+sequenceDiagram
+  participant Client
+  participant OrderSvc as Order Service
+  participant MQ as RabbitMQ (orders.event)
+  participant ProductSvc as Product Service
+  participant DB as Product DB
+
+  Client->>OrderSvc: POST /orders (items)
+  OrderSvc->>OrderSvc: save order (PENDING)
+  OrderSvc->>MQ: publish order.created (raw JSON)
+  MQ-->>ProductSvc: deliver order.created
+  ProductSvc->>ProductSvc: handle order.created
+  ProductSvc->>DB: decrease stock (per item)
+
+  alt stock sufficient
+    ProductSvc->>ProductSvc: success (ack message)
+  else insufficient stock
+    ProductSvc->>MQ: publish order.stock_failed
+    MQ-->>OrderSvc: deliver order.stock_failed
+    OrderSvc->>OrderSvc: update order status = FAILED
+  end
+```
+
 ## Project setup
 
 ```bash

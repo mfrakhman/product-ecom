@@ -6,6 +6,7 @@ import {
 import { StocksRepository } from './repositories/stock.repository';
 import { EntityManager, Not } from 'typeorm';
 import { Stock } from './entities/stock.entity';
+import { InsufficientStockError } from './errors/insufficient-stock.error';
 
 @Injectable()
 export class StocksService {
@@ -53,9 +54,7 @@ export class StocksService {
       manager,
     );
     if (!success) {
-      throw new BadRequestException(
-        'Insufficient stock to decrease by the specified quantity',
-      );
+      throw new InsufficientStockError(skuId, quantity);
     }
   }
 }

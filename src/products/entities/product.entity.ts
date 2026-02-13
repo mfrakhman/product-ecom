@@ -30,12 +30,6 @@ export class Product {
   @Column({ type: 'enum', enum: Category })
   category: Category;
 
-  @Column('bigint')
-  price: number;
-
-  @Column({ default: 0, type: 'int' })
-  stock: number;
-
   @CreateDateColumn()
   createdAt: Date;
 
