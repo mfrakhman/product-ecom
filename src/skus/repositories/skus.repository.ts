@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { In, Repository } from 'typeorm';
+import { EntityManager, In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Sku } from '../entities/sku.entity';
 
@@ -13,6 +13,11 @@ export class SkusRepository {
   create(sku: Partial<Sku>) {
     const newSku = this.skuRepository.create(sku);
     return this.skuRepository.save(newSku);
+  }
+
+  createWithManager(sku: Partial<Sku>, manager: EntityManager) {
+    const newSku = manager.create(Sku, sku);
+    return manager.save(newSku);
   }
 
   findById(id: string) {

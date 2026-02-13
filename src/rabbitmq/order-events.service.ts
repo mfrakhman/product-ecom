@@ -20,17 +20,17 @@ export class OrderEventsService {
 
     await this.dataSource.transaction(async (manager) => {
       for (const item of event.items) {
-        console.log(
-          '[order.created] decreasing stock',
-          item.skuId,
-          item.quantity,
+        this.logger.log(
+          `[order.created] decreasing stock skuId=${item.skuId} quantity=${item.quantity}`,
         );
         await this.stocksService.decreaseStock(
           item.skuId,
           item.quantity,
           manager,
         );
-        console.log('[order.created] decreased stock', item.skuId);
+        this.logger.log(
+          `[order.created] decreased stock skuId=${item.skuId}`,
+        );
       }
     });
   }

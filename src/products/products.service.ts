@@ -8,8 +8,8 @@ export class ProductsService {
   constructor(private readonly productsRepository: ProductsRepository) {}
 
   async create(dto: CreateProductDto) {
-    this.productsRepository.create(dto);
-    return { message: 'Product created successfully', data: dto };
+    const product = await this.productsRepository.create(dto);
+    return { message: 'Product created successfully', data: product };
   }
 
   async findAll(page = 1, limit = 10, query?: string) {

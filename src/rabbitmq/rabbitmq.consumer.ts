@@ -6,6 +6,7 @@ import { OrderCreatedEvent } from './events/order-created.event';
 import { RabbitmqPublisher } from './rabbitmq.publisher';
 import { InsufficientStockError } from 'src/stocks/errors/insufficient-stock.error';
 import { OrderStockFailedEvent } from './events/order-stock-failed.event';
+import { OrderStockReservedEvent } from './events/order-stock-reserved.event';
 
 @Injectable()
 export class RabbitmqConsumer implements OnModuleInit, OnModuleDestroy {
@@ -52,9 +53,16 @@ export class RabbitmqConsumer implements OnModuleInit, OnModuleDestroy {
       try {
         const content = JSON.parse(msg.content.toString());
         const payload: OrderCreatedEvent = content?.data ?? content;
-        console.log('[order.created] received');
-        console.log('[order.created] payload', payload);
+        this.logger.log(`[order.created] received orderId=${payload.orderId}`);
+        this.logger.log(
+          `[order.created] payload items=${payload.items?.length ?? 0}`,
+        );
         await this.orderEventsService.onOrderCreated(payload);
+        const reserved = new OrderStockReservedEvent(
+          payload.orderId,
+          payload.items,
+        );
+        await this.rabbitmqPublisher.publish('order.stock_reserved', reserved);
         this.channel?.ack(msg);
       } catch (error) {
         if (error instanceof InsufficientStockError) {

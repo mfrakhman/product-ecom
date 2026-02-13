@@ -25,18 +25,19 @@ export class SkusService {
       if (!product) {
         throw new NotFoundException('Associated product not found');
       }
-      const sku = await this.skusRepository.create({
-        skuCode: dto.skuCode,
-        name: dto.name,
-        description: dto.description,
-        size: dto.size,
-        color: dto.color,
-        price: dto.price,
-        isActive: dto.isActive,
-        product: product,
-      });
-
-      await manager.save(sku);
+      const sku = await this.skusRepository.createWithManager(
+        {
+          skuCode: dto.skuCode,
+          name: dto.name,
+          description: dto.description,
+          size: dto.size,
+          color: dto.color,
+          price: dto.price,
+          isActive: dto.isActive,
+          product: product,
+        },
+        manager,
+      );
 
       await this.stocksService.initializeStock(dto.quantity, sku.id, manager);
       return sku;
