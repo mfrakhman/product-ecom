@@ -29,14 +29,14 @@ export class ProductsRepository {
   findById(id: string) {
     return this.productRepository.findOne({
       where: { id },
-      relations: ['skus'],
+      relations: ['skus', 'skus.stock'],
     });
   }
 
   findSkusById(id: string) {
     return this.productRepository.findOne({
       where: { id },
-      relations: ['skus'],
+      relations: ['skus', 'skus.stock'],
     });
   }
 
