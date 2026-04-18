@@ -23,6 +23,7 @@ async function bootstrap() {
     }),
   );
   const configService = app.get(ConfigService);
+  app.getHttpAdapter().get('/health', (_req: any, res: any) => res.status(200).json({ status: 'ok' }));
   const port = configService.get<number>('PORT', 3002);
   await app.listen(port);
   logger.log(`Product-service running on port: ${port}`);

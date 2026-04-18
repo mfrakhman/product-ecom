@@ -45,7 +45,7 @@ export class SkusRepository {
 
   async findActiveIdsByIds(ids: string[]) {
     return this.skuRepository.find({
-      select: ['id'],
+      select: ['id', 'price'],
       where: { id: In(ids), isActive: true },
     });
   }

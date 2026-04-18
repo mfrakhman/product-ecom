@@ -90,7 +90,7 @@ export class SkusService {
     const invalid = uniqueIds.filter((id) => !existingIds.has(id));
 
     return {
-      valid: uniqueIds.filter((id) => existingIds.has(id)),
+      valid: existingSkus.map((s) => ({ id: s.id, price: s.price })),
       invalid,
     };
   }
