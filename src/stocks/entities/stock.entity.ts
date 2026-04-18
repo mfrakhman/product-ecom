@@ -10,12 +10,15 @@ import {
 @Entity()
 export class Stock {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
-  @Column('bigint')
-  amount: number;
+  @Column('bigint', { transformer: {
+    to: (v: number) => v,
+    from: (v: string) => parseInt(v, 10),
+  }})
+  amount!: number;
 
   @OneToOne(() => Sku, (sku) => sku.stock, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'sku_id' })
-  sku: Sku;
+  sku!: Sku;
 }

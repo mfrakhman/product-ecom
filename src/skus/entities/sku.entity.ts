@@ -12,33 +12,36 @@ import { Stock } from '../../stocks/entities/stock.entity';
 @Entity()
 export class Sku {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ unique: true })
-  skuCode: string;
+  skuCode!: string;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column({ type: 'text', nullable: true })
-  description: string;
+  description!: string;
 
   @Column({ type: 'text', nullable: true })
-  size: string;
+  size!: string;
 
   @Column({ type: 'text', nullable: true })
-  color: string;
+  color!: string;
 
-  @Column('decimal', { precision: 12, scale: 2 })
-  price: number;
+  @Column('decimal', { precision: 12, scale: 2, transformer: {
+    to: (v: number) => v,
+    from: (v: string) => parseFloat(v),
+  }})
+  price!: number;
 
   @Column({ default: true })
-  isActive: boolean;
+  isActive!: boolean;
 
   @ManyToOne(() => Product, (product) => product.skus, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'product_id' })
-  product: Product;
+  product!: Product;
 
   @OneToOne(() => Stock, (stock) => stock.sku)
-  stock: Stock;
+  stock!: Stock;
 }
