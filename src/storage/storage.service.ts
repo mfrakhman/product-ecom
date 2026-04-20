@@ -49,6 +49,8 @@ export class StorageService implements OnModuleInit {
   }
 
   getUrl(objectName: string): string {
+    const publicUrl = this.configService.get<string>('MINIO_PUBLIC_URL');
+    if (publicUrl) return `${publicUrl}/${this.bucket}/${objectName}`;
     const useSSL = this.configService.get<string>('MINIO_USE_SSL') === 'true';
     const protocol = useSSL ? 'https' : 'http';
     const endpoint = this.configService.get<string>('MINIO_ENDPOINT');
