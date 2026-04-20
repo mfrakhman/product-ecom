@@ -2,12 +2,15 @@ import {
   Controller,
   Post,
   Get,
+  Delete,
   Body,
   Param,
-  ParseUUIDPipe,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { SkusService } from './skus.service';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { CreateSkuDto } from './dtos/create-sku.dto';
 import { restockSkuDto } from './dtos/restock-sku.dto';
 
@@ -39,5 +42,21 @@ export class SkusController {
   @Post('/validate')
   async validateSkus(@Body() body: { skuIds: string[] }) {
     return this.skusService.validateSkus(body.skuIds);
+  }
+
+  @Post(':id/image')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024 } }))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })
+  uploadImage(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.skusService.uploadImage(id, file);
+  }
+
+  @Delete(':id/image')
+  deleteImage(@Param('id') id: string) {
+    return this.skusService.deleteImage(id);
   }
 }

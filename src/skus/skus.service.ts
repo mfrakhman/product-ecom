@@ -9,6 +9,7 @@ import { ProductsRepository } from '../products/repositories/products.repository
 import { StocksService } from '../stocks/stocks.service';
 import { DataSource, EntityManager } from 'typeorm';
 import { restockSkuDto } from './dtos/restock-sku.dto';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class SkusService {
@@ -17,6 +18,7 @@ export class SkusService {
     private readonly productsRepository: ProductsRepository,
     private readonly stocksService: StocksService,
     private readonly dataSource: DataSource,
+    private readonly storageService: StorageService,
   ) {}
 
   async create(dto: CreateSkuDto) {
@@ -93,6 +95,44 @@ export class SkusService {
       valid: existingSkus.map((s) => ({ id: s.id, price: s.price })),
       invalid,
     };
+  }
+
+  async uploadImage(id: string, file: Express.Multer.File) {
+    const sku = await this.skusRepository.findById(id);
+    if (!sku) {
+      throw new NotFoundException('SKU not found');
+    }
+    if (!file.mimetype.startsWith('image/')) {
+      throw new BadRequestException('File must be an image');
+    }
+    if (sku.imageObject) {
+      await this.storageService.delete(sku.imageObject);
+    }
+    const objectName = this.storageService.buildObjectName(
+      'skus',
+      id,
+      file.originalname,
+    );
+    const imageUrl = await this.storageService.upload(
+      objectName,
+      file.buffer,
+      file.mimetype,
+    );
+    await this.skusRepository.update(id, { imageUrl, imageObject: objectName });
+    return { message: 'Image uploaded successfully', data: { imageUrl } };
+  }
+
+  async deleteImage(id: string) {
+    const sku = await this.skusRepository.findById(id);
+    if (!sku) {
+      throw new NotFoundException('SKU not found');
+    }
+    if (!sku.imageObject) {
+      throw new BadRequestException('SKU has no image');
+    }
+    await this.storageService.delete(sku.imageObject);
+    await this.skusRepository.update(id, { imageUrl: null, imageObject: null });
+    return { message: 'Image deleted successfully' };
   }
 
   async deactivate() {

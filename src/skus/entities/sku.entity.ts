@@ -38,6 +38,12 @@ export class Sku {
   @Column({ default: true })
   isActive!: boolean;
 
+  @Column({ type: 'text', nullable: true })
+  imageUrl!: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  imageObject!: string | null;
+
   @ManyToOne(() => Product, (product) => product.skus, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'product_id' })
   product!: Product;

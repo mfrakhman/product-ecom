@@ -30,6 +30,12 @@ export class Product {
   @Column({ type: 'enum', enum: Category })
   category!: Category;
 
+  @Column({ type: 'text', nullable: true })
+  imageUrl!: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  imageObject!: string | null;
+
   @CreateDateColumn()
   createdAt!: Date;
 
