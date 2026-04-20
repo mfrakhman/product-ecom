@@ -34,14 +34,14 @@ export class SkusController {
     return this.skusService.findById(id);
   }
 
-  @Post(':skuId/restock')
-  async restockSku(@Param('skuId') skuId: string, @Body() dto: restockSkuDto) {
-    return this.skusService.restockSku(skuId, dto);
-  }
-
   @Post('/validate')
   async validateSkus(@Body() body: { skuIds: string[] }) {
     return this.skusService.validateSkus(body.skuIds);
+  }
+
+  @Post(':skuId/restock')
+  async restockSku(@Param('skuId') skuId: string, @Body() dto: restockSkuDto) {
+    return this.skusService.restockSku(skuId, dto);
   }
 
   @Post(':id/image')

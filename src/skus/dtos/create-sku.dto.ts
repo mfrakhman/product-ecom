@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsInt, IsString, Min, IsUUID } from 'class-validator';
+import { IsBoolean, IsNumber, IsInt, IsString, Min, IsUUID } from 'class-validator';
 
 export class CreateSkuDto {
   @ApiProperty()
@@ -23,7 +23,7 @@ export class CreateSkuDto {
   color: string;
 
   @ApiProperty()
-  @IsInt()
+  @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   price: number;
 

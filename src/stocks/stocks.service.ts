@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { StocksRepository } from './repositories/stock.repository';
-import { EntityManager, Not } from 'typeorm';
+import { EntityManager } from 'typeorm';
 import { Stock } from './entities/stock.entity';
 import { InsufficientStockError } from './errors/insufficient-stock.error';
 
@@ -12,7 +12,6 @@ import { InsufficientStockError } from './errors/insufficient-stock.error';
 export class StocksService {
   constructor(
     private readonly stocksRepository: StocksRepository,
-    private readonly skusRepository: StocksRepository,
   ) {}
 
   async initializeStock(amount: number, skuId: string, manager: EntityManager) {

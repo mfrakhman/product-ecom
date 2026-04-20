@@ -10,6 +10,7 @@ import { StocksService } from '../stocks/stocks.service';
 import { DataSource, EntityManager } from 'typeorm';
 import { restockSkuDto } from './dtos/restock-sku.dto';
 import { StorageService } from '../storage/storage.service';
+import 'multer';
 
 @Injectable()
 export class SkusService {
@@ -58,14 +59,6 @@ export class SkusService {
       throw new NotFoundException('SKU not found');
     }
     return { message: 'success fetching sku', data: sku };
-  }
-
-  async findByCode(skuCode: string) {
-    //
-  }
-
-  async update() {
-    //
   }
 
   async restockSku(skuId: string, dto: restockSkuDto) {
@@ -135,15 +128,4 @@ export class SkusService {
     return { message: 'Image deleted successfully' };
   }
 
-  async deactivate() {
-    //
-  }
-
-  async activate() {
-    //
-  }
-
-  async delete() {
-    //
-  }
 }

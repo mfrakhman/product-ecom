@@ -7,6 +7,7 @@ import { ProductsRepository } from './repositories/products.repository';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { StorageService } from '../storage/storage.service';
+import 'multer';
 
 @Injectable()
 export class ProductsService {
