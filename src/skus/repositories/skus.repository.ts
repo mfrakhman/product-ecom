@@ -24,6 +24,7 @@ export class SkusRepository {
     return this.skuRepository.findOne({
       where: { id },
       relations: ['product', 'stock'],
+      withDeleted: true,
     });
   }
 
@@ -40,7 +41,7 @@ export class SkusRepository {
   }
 
   delete(id: string) {
-    return this.skuRepository.delete(id);
+    return this.skuRepository.softDelete(id);
   }
 
   async findActiveIdsByIds(ids: string[]) {

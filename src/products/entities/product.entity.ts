@@ -2,6 +2,7 @@ import { Sku } from '../../skus/entities/sku.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   OneToMany,
@@ -41,6 +42,9 @@ export class Product {
 
   @UpdateDateColumn()
   updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt!: Date | null;
 
   @OneToMany(() => Sku, (sku) => sku.product)
   skus!: Sku[];

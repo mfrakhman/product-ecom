@@ -2,6 +2,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
+  DeleteDateColumn,
   ManyToOne,
   JoinColumn,
   OneToOne,
@@ -43,6 +44,9 @@ export class Sku {
 
   @Column({ type: 'text', nullable: true })
   imageObject!: string | null;
+
+  @DeleteDateColumn()
+  deletedAt!: Date | null;
 
   @ManyToOne(() => Product, (product) => product.skus, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'product_id' })

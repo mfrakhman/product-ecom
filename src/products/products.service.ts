@@ -91,6 +91,10 @@ export class ProductsService {
     const product = await this.productsRepository.findById(id);
     if (!product) throw new NotFoundException('Product not found');
     if (product.imageObject) await this.storageService.delete(product.imageObject);
+    for (const sku of product.skus ?? []) {
+      if (sku.imageObject) await this.storageService.delete(sku.imageObject);
+      await this.skusRepository.delete(sku.id);
+    }
     await this.productsRepository.delete(id);
     return { message: 'Product deleted successfully' };
   }

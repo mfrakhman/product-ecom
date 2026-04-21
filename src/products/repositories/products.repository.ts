@@ -47,6 +47,6 @@ export class ProductsRepository {
   }
 
   delete(id: string) {
-    return this.productRepository.delete(id).then(() => {});
+    return this.productRepository.softDelete(id).then(() => {});
   }
 }

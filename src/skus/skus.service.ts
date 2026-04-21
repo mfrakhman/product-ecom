@@ -29,8 +29,11 @@ export class SkusService {
       const product = await this.productsRepository.findById(dto.product_id);
       if (!product) throw new NotFoundException('Associated product not found');
 
-      const existing = await manager.findOne(Sku, { where: { skuCode: dto.skuCode } });
-      if (existing) throw new ConflictException(`SKU code "${dto.skuCode}" already exists`);
+      const existing = await manager.findOne(Sku, {
+        where: { skuCode: dto.skuCode },
+      });
+      if (existing)
+        throw new ConflictException(`SKU code "${dto.skuCode}" already exists`);
 
       const sku = await this.skusRepository.createWithManager(
         {
@@ -131,5 +134,4 @@ export class SkusService {
     await this.skusRepository.update(id, { imageUrl: null, imageObject: null });
     return { message: 'Image deleted successfully' };
   }
-
 }
