@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,7 +8,8 @@ import { SkusRepository } from './repositories/skus.repository';
 import { CreateSkuDto } from './dtos/create-sku.dto';
 import { ProductsRepository } from '../products/repositories/products.repository';
 import { StocksService } from '../stocks/stocks.service';
-import { DataSource, EntityManager } from 'typeorm';
+import { DataSource } from 'typeorm';
+import { Sku } from './entities/sku.entity';
 import { restockSkuDto } from './dtos/restock-sku.dto';
 import { StorageService } from '../storage/storage.service';
 import 'multer';
@@ -25,9 +27,11 @@ export class SkusService {
   async create(dto: CreateSkuDto) {
     return this.dataSource.transaction(async (manager) => {
       const product = await this.productsRepository.findById(dto.product_id);
-      if (!product) {
-        throw new NotFoundException('Associated product not found');
-      }
+      if (!product) throw new NotFoundException('Associated product not found');
+
+      const existing = await manager.findOne(Sku, { where: { skuCode: dto.skuCode } });
+      if (existing) throw new ConflictException(`SKU code "${dto.skuCode}" already exists`);
+
       const sku = await this.skusRepository.createWithManager(
         {
           skuCode: dto.skuCode,
@@ -43,7 +47,7 @@ export class SkusService {
       );
 
       await this.stocksService.initializeStock(dto.quantity, sku.id, manager);
-      return sku;
+      return { message: 'SKU created successfully', data: sku };
     });
   }
 

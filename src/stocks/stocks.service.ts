@@ -15,8 +15,8 @@ export class StocksService {
   ) {}
 
   async initializeStock(amount: number, skuId: string, manager: EntityManager) {
-    if (amount < 0) {
-      throw new BadRequestException('Stock amount cannot be negative');
+    if (amount <= 0) {
+      throw new BadRequestException('Stock amount must be greater than zero');
     }
 
     const stock = manager.create(Stock, {

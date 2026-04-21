@@ -4,39 +4,39 @@ import { IsBoolean, IsNumber, IsInt, IsString, Min, IsUUID } from 'class-validat
 export class CreateSkuDto {
   @ApiProperty()
   @IsString()
-  name: string;
+  name!: string;
 
   @ApiProperty()
   @IsString()
-  description: string;
+  description!: string;
 
   @ApiProperty()
   @IsString()
-  skuCode: string;
+  skuCode!: string;
 
   @ApiProperty()
   @IsString()
-  size: string;
+  size!: string;
 
   @ApiProperty()
   @IsString()
-  color: string;
+  color!: string;
 
   @ApiProperty()
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
-  price: number;
+  price!: number;
 
   @ApiProperty()
   @IsBoolean()
-  isActive: boolean;
+  isActive!: boolean;
 
   @ApiProperty()
   @IsUUID()
-  product_id: string;
+  product_id!: string;
 
-  @ApiProperty()
+  @ApiProperty({ minimum: 1 })
   @IsInt()
-  @Min(0)
-  quantity: number;
+  @Min(1)
+  quantity!: number;
 }
