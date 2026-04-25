@@ -61,10 +61,9 @@ export class SkusService {
 
   async findById(id: string) {
     const sku = await this.skusRepository.findById(id);
-
-    if (!sku) {
-      throw new NotFoundException('SKU not found');
-    }
+    if (!sku) throw new NotFoundException('SKU not found');
+    const available = sku.stock ? sku.stock.amount - sku.stock.reserved : null;
+    (sku as any).available = available;
     return { message: 'success fetching sku', data: sku };
   }
 
