@@ -1,124 +1,237 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# product-service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Manages the product catalog, SKU variants, and stock inventory. Listens for `order.created` events from RabbitMQ to reserve stock, and publishes the result back to the order-service.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+**Tech:** NestJS · TypeScript · PostgreSQL · TypeORM · RabbitMQ · MinIO
 
-## Description
+**Internal port:** `3002`
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Order Flow Diagram
+## API Endpoints
 
-```mermaid
-sequenceDiagram
-  participant Client
-  participant OrderSvc as Order Service
-  participant MQ as RabbitMQ (orders.event)
-  participant ProductSvc as Product Service
-  participant DB as Product DB
+### Products
 
-  Client->>OrderSvc: POST /orders (items)
-  OrderSvc->>OrderSvc: save order (PENDING)
-  OrderSvc->>MQ: publish order.created (raw JSON)
-  MQ-->>ProductSvc: deliver order.created
-  ProductSvc->>ProductSvc: handle order.created
-  ProductSvc->>DB: decrease stock (per item)
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/products` | Public | List all active products |
+| GET | `/products/:id` | Public | Get product with all SKUs |
+| POST | `/products` | JWT (Admin) | Create product with initial SKUs |
+| PATCH | `/products/:id` | JWT (Admin) | Update product details |
+| DELETE | `/products/:id` | JWT (Admin) | Soft delete product |
+| POST | `/products/:id/image` | JWT (Admin) | Upload product image to MinIO |
+| DELETE | `/products/:id/image` | JWT (Admin) | Delete product image |
 
-  alt stock sufficient
-    ProductSvc->>ProductSvc: success (ack message)
-  else insufficient stock
-    ProductSvc->>MQ: publish order.stock_failed
-    MQ-->>OrderSvc: deliver order.stock_failed
-    OrderSvc->>OrderSvc: update order status = FAILED
-  end
+### SKUs
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/products/:id/skus` | Public | Get SKUs for a product |
+| GET | `/skus/:id` | Public | Get SKU detail with stock |
+| POST | `/skus` | JWT (Admin) | Create new SKU for a product |
+| POST | `/skus/validate` | Internal | Validate SKU IDs and return current prices |
+| POST | `/skus/:id/restock` | JWT (Admin) | Add stock to a SKU |
+| POST | `/skus/:id/image` | JWT (Admin) | Upload SKU image |
+| DELETE | `/skus/:id/image` | JWT (Admin) | Delete SKU image |
+
+---
+
+## Stock Model
+
+Each SKU tracks two separate stock counters:
+
+| Field | Description |
+|---|---|
+| `available` | Units available for new orders |
+| `reserved` | Units held for pending (unpaid) orders |
+
+On `order.created` → `available` decremented, `reserved` incremented.
+On order cancellation → `reserved` released back to `available`.
+
+---
+
+## RabbitMQ Events
+
+| Direction | Event | Trigger | Action |
+|---|---|---|---|
+| Consumes | `order.created` | Order placed by user | Reserve stock for each item |
+| Publishes | `order.stock.reserved` | All items reserved OK | Signal order-service to proceed |
+| Publishes | `order.stock.failed` | Insufficient stock | Signal order-service to cancel order |
+
+---
+
+## System Flow
+
+### GET /products/:id
+
+```
+Client
+  │
+  ▼
+[ product-service ]
+  │
+  ├── Query product from PostgreSQL (with SKUs and stock)
+  └── Return product + SKU list with available stock counts
 ```
 
-## Project setup
+### POST /products (Admin)
+
+```
+Client (Admin JWT)
+  │
+  ▼
+[ product-service ]
+  │
+  ├── Validate request body
+  ├── Create product record in PostgreSQL
+  ├── For each SKU in request:
+  │     ├── Create SKU record
+  │     └── Create stock record (available = quantity, reserved = 0)
+  └── Return created product with SKUs
+```
+
+### POST /skus/validate (Internal — called by gateway during checkout)
+
+```
+[ API Gateway / Checkout ]
+  │
+  ▼
+[ product-service ]
+  │
+  ├── Check each SKU ID exists and is active
+  ├── Collect { id, price } for valid SKUs
+  └── Return { valid: [...], invalid: [...] }
+```
+
+### RabbitMQ: order.created → Stock Reservation
+
+```
+[ Order Service ] ──── publish order.created ────▶ [ RabbitMQ ]
+                                                        │
+                                                        ▼
+                                               [ product-service ]
+                                                 Consume order.created
+                                                 For each order item:
+                                                   ├── Check available >= quantity
+                                                   ├── available -= quantity
+                                                   └── reserved  += quantity
+                                                        │
+                                        ┌───────────────┴───────────────┐
+                                        ▼                               ▼
+                               All items OK                      Any item fails
+                                        │                               │
+                               publish order.stock.reserved    publish order.stock.failed
+```
+
+---
+
+## Project Structure
+
+```
+product-service/
+└── src/
+    ├── products/
+    │   ├── entities/product.entity.ts   # Product (name, category, imageUrl, softDelete)
+    │   ├── products.controller.ts       # CRUD + image upload endpoints
+    │   ├── products.service.ts          # Business logic
+    │   └── repositories/               # TypeORM queries
+    ├── skus/
+    │   ├── entities/sku.entity.ts       # SKU (skuCode, price, size, color, imageUrl)
+    │   ├── skus.controller.ts           # CRUD + validate + restock endpoints
+    │   ├── skus.service.ts
+    │   └── repositories/
+    ├── stocks/
+    │   ├── entities/stock.entity.ts     # Stock (available, reserved) — 1:1 with SKU
+    │   ├── repositories/stock.repository.ts
+    │   └── errors/insufficient-stock.error.ts
+    ├── rabbitmq/
+    │   ├── rabbitmq.consumer.ts         # Consumes order.created
+    │   ├── rabbitmq.publisher.ts        # Publishes stock.reserved / stock.failed
+    │   └── order-events.service.ts      # Stock reservation logic
+    ├── storage/
+    │   └── storage.module.ts            # MinIO client — handles image upload/delete
+    └── migrations/                      # TypeORM migration files (runs in production)
+```
+
+---
+
+## Environment Variables
+
+```env
+PORT=3002
+NODE_ENV=development
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASS=postgres
+DB_NAME=microserv_db
+
+RABBITMQ_URL=amqp://guest:guest@localhost:5672
+
+MINIO_ENDPOINT=localhost
+MINIO_PORT=9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET=products
+MINIO_USE_SSL=false
+```
+
+---
+
+## Running Locally
 
 ```bash
-$ npm install
+npm install
+npm run start:dev
 ```
 
-## Compile and run the project
+Service runs on `http://localhost:3002`.
+
+## Example Requests
+
+### Get All Products
+```bash
+curl http://localhost:3002/products
+```
+
+### Create Product
+```bash
+curl -X POST http://localhost:3002/products \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Classic Sneaker",
+    "description": "Everyday sneaker",
+    "category": "SHOES",
+    "skus": [
+      {
+        "skuCode": "SNK-WHT-42",
+        "name": "Classic Sneaker White 42",
+        "description": "White, size 42",
+        "size": "42",
+        "color": "White",
+        "price": 350000,
+        "isActive": true,
+        "quantity": 50
+      }
+    ]
+  }'
+```
+
+### Restock a SKU
+```bash
+curl -X POST http://localhost:3002/skus/<sku_uuid>/restock \
+  -H "Content-Type: application/json" \
+  -d '{"quantity": 100}'
+```
+
+## Docker
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+docker build -t product-service .
+docker run --env-file .env -p 3002:3002 product-service
 ```
 
-## Run tests
+## Part of
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+[E-Commerce Microservices Platform](../README.md)
