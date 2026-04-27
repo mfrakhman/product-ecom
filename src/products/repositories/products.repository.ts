@@ -23,20 +23,21 @@ export class ProductsRepository {
       skip,
       take: limit,
       order: { createdAt: 'DESC' },
+      relations: ['category', 'images'],
     });
   }
 
   findById(id: string) {
     return this.productRepository.findOne({
       where: { id },
-      relations: ['skus', 'skus.stock'],
+      relations: ['category', 'images', 'skus', 'skus.stock', 'skus.color', 'skus.size'],
     });
   }
 
   findSkusById(id: string) {
     return this.productRepository.findOne({
       where: { id },
-      relations: ['skus', 'skus.stock'],
+      relations: ['skus', 'skus.stock', 'skus.color', 'skus.size'],
     });
   }
 

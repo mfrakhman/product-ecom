@@ -23,7 +23,7 @@ export class SkusRepository {
   findById(id: string) {
     return this.skuRepository.findOne({
       where: { id },
-      relations: ['product', 'stock'],
+      relations: ['product', 'product.images', 'stock', 'color', 'size'],
       withDeleted: true,
     });
   }

@@ -1,10 +1,22 @@
-import { IsEnum, IsString, IsArray, ValidateNested, ArrayMinSize, IsInt, Min } from 'class-validator';
+import {
+  IsArray,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+  ArrayMinSize,
+  ValidateNested,
+  IsBoolean,
+} from 'class-validator';
 import { Type } from 'class-transformer';
-import { OmitType, ApiProperty } from '@nestjs/swagger';
-import { Category } from '../entities/product.entity';
+import { OmitType, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CreateSkuDto } from '../../skus/dtos/create-sku.dto';
 
-export class CreateSkuInProductDto extends OmitType(CreateSkuDto, ['product_id', 'quantity'] as const) {
+export class CreateSkuInProductDto extends OmitType(CreateSkuDto, [
+  'product_id',
+  'quantity',
+] as const) {
   @ApiProperty({ minimum: 1 })
   @IsInt()
   @Min(1)
@@ -18,11 +30,21 @@ export class CreateProductDto {
 
   @ApiProperty()
   @IsString()
-  description!: string;
+  slug!: string;
 
-  @ApiProperty({ enum: Category })
-  @IsEnum(Category)
-  category!: Category;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiProperty({ description: 'Category id from categories table' })
+  @IsUUID()
+  categoryId!: string;
+
+  @ApiPropertyOptional({ description: 'apparel | footwear_uk | waist — omit for bags' })
+  @IsOptional()
+  @IsString()
+  sizeGroup?: string;
 
   @ApiProperty({ type: [CreateSkuInProductDto], minItems: 1 })
   @IsArray()

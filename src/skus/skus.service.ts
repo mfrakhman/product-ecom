@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotImplementedException,
   NotFoundException,
 } from '@nestjs/common';
 import { SkusRepository } from './repositories/skus.repository';
@@ -11,7 +12,6 @@ import { StocksService } from '../stocks/stocks.service';
 import { DataSource } from 'typeorm';
 import { Sku } from './entities/sku.entity';
 import { restockSkuDto } from './dtos/restock-sku.dto';
-import { StorageService } from '../storage/storage.service';
 import 'multer';
 
 @Injectable()
@@ -21,7 +21,6 @@ export class SkusService {
     private readonly productsRepository: ProductsRepository,
     private readonly stocksService: StocksService,
     private readonly dataSource: DataSource,
-    private readonly storageService: StorageService,
   ) {}
 
   async create(dto: CreateSkuDto) {
@@ -38,13 +37,12 @@ export class SkusService {
       const sku = await this.skusRepository.createWithManager(
         {
           skuCode: dto.skuCode,
-          name: dto.name,
-          description: dto.description,
-          size: dto.size,
-          color: dto.color,
+          productId: product.id,
+          colorId: dto.colorId,
+          sizeId: dto.sizeId ?? null,
           price: dto.price,
+          compareAt: dto.compareAt ?? null,
           isActive: dto.isActive,
-          product: product,
         },
         manager,
       );
@@ -68,13 +66,10 @@ export class SkusService {
   }
 
   async restockSku(skuId: string, dto: restockSkuDto) {
-    const { quantity } = dto;
     return this.dataSource.transaction(async (manager) => {
       const sku = await this.skusRepository.findById(skuId);
-      if (!sku) {
-        throw new NotFoundException('SKU not found');
-      }
-      await this.stocksService.increaseStock(skuId, quantity, manager);
+      if (!sku) throw new NotFoundException('SKU not found');
+      await this.stocksService.increaseStock(skuId, dto.quantity, manager);
       return { message: 'SKU restocked successfully' };
     });
   }
@@ -85,8 +80,7 @@ export class SkusService {
     }
 
     const uniqueIds = Array.from(new Set(skuIds));
-    const existingSkus =
-      await this.skusRepository.findActiveIdsByIds(uniqueIds);
+    const existingSkus = await this.skusRepository.findActiveIdsByIds(uniqueIds);
     const existingIds = new Set(existingSkus.map((s) => s.id));
     const invalid = uniqueIds.filter((id) => !existingIds.has(id));
 
@@ -96,41 +90,16 @@ export class SkusService {
     };
   }
 
-  async uploadImage(id: string, file: Express.Multer.File) {
-    const sku = await this.skusRepository.findById(id);
-    if (!sku) {
-      throw new NotFoundException('SKU not found');
-    }
-    if (!file.mimetype.startsWith('image/')) {
-      throw new BadRequestException('File must be an image');
-    }
-    if (sku.imageObject) {
-      await this.storageService.delete(sku.imageObject);
-    }
-    const objectName = this.storageService.buildObjectName(
-      'skus',
-      id,
-      file.originalname,
+  // TODO: SKU images removed — use /products/:id/colors/:colorId/images instead
+  async uploadImage(_id: string, _file: Express.Multer.File) {
+    throw new NotImplementedException(
+      'SKU images removed. Use /products/:id/colors/:colorId/images',
     );
-    const imageUrl = await this.storageService.upload(
-      objectName,
-      file.buffer,
-      file.mimetype,
-    );
-    await this.skusRepository.update(id, { imageUrl, imageObject: objectName });
-    return { message: 'Image uploaded successfully', data: { imageUrl } };
   }
 
-  async deleteImage(id: string) {
-    const sku = await this.skusRepository.findById(id);
-    if (!sku) {
-      throw new NotFoundException('SKU not found');
-    }
-    if (!sku.imageObject) {
-      throw new BadRequestException('SKU has no image');
-    }
-    await this.storageService.delete(sku.imageObject);
-    await this.skusRepository.update(id, { imageUrl: null, imageObject: null });
-    return { message: 'Image deleted successfully' };
+  async deleteImage(_id: string) {
+    throw new NotImplementedException(
+      'SKU images removed. Use /products/:id/colors/:colorId/images',
+    );
   }
 }

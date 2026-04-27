@@ -1,31 +1,37 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNumber, IsInt, IsString, Min, IsUUID } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsBoolean,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+} from 'class-validator';
 
 export class CreateSkuDto {
   @ApiProperty()
   @IsString()
-  name!: string;
-
-  @ApiProperty()
-  @IsString()
-  description!: string;
-
-  @ApiProperty()
-  @IsString()
   skuCode!: string;
 
-  @ApiProperty()
-  @IsString()
-  size!: string;
+  @ApiProperty({ description: 'Color id from colors table' })
+  @IsUUID()
+  colorId!: string;
 
-  @ApiProperty()
-  @IsString()
-  color!: string;
+  @ApiPropertyOptional({ description: 'Size id from sizes table — omit for bags/one-size' })
+  @IsOptional()
+  @IsUUID()
+  sizeId?: string;
 
-  @ApiProperty()
-  @IsNumber({ maxDecimalPlaces: 2 })
+  @ApiProperty({ description: 'Price in IDR, e.g. 780000 = Rp 780.000' })
+  @IsInt()
   @Min(0)
   price!: number;
+
+  @ApiPropertyOptional({ description: 'Original price in IDR for sale display' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  compareAt?: number;
 
   @ApiProperty()
   @IsBoolean()

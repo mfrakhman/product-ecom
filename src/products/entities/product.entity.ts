@@ -1,23 +1,19 @@
-import { Sku } from '../../skus/entities/sku.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Sku } from '../../skus/entities/sku.entity';
+import { Category } from '../../categories/entities/category.entity';
+import { ProductColorImage } from './product-color-image.entity';
 
-export enum Category {
-  BAGS = 'BAGS',
-  SHOES = 'SHOES',
-  CLOTHES = 'CLOTHES',
-  PANTS = 'PANTS',
-}
-
-@Entity()
+@Entity('products')
 export class Product {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -25,17 +21,31 @@ export class Product {
   @Column()
   name!: string;
 
+  @Column({ unique: true })
+  slug!: string;
+
   @Column({ type: 'text', nullable: true })
   description!: string | null;
 
-  @Column({ type: 'enum', enum: Category })
+  @Column({ name: 'category_id' })
+  categoryId!: string;
+
+  @ManyToOne(() => Category, (c) => c.products, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'category_id' })
   category!: Category;
 
+  // 'apparel' | 'footwear_uk' | 'waist' | null (bags, accessories)
   @Column({ type: 'text', nullable: true })
-  imageUrl!: string | null;
+  sizeGroup!: string | null;
 
-  @Column({ type: 'text', nullable: true })
-  imageObject!: string | null;
+  @Column({ default: true })
+  isActive!: boolean;
+
+  @OneToMany(() => Sku, (sku) => sku.product)
+  skus!: Sku[];
+
+  @OneToMany(() => ProductColorImage, (img) => img.product)
+  images!: ProductColorImage[];
 
   @CreateDateColumn()
   createdAt!: Date;
@@ -45,7 +55,4 @@ export class Product {
 
   @DeleteDateColumn()
   deletedAt!: Date | null;
-
-  @OneToMany(() => Sku, (sku) => sku.product)
-  skus!: Sku[];
 }

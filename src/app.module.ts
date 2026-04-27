@@ -6,6 +6,9 @@ import { SkusModule } from './skus/skus.module';
 import { StocksModule } from './stocks/stocks.module';
 import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
 import { StorageModule } from './storage/storage.module';
+import { CategoriesModule } from './categories/categories.module';
+import { ColorsModule } from './colors/colors.module';
+import { SizesModule } from './sizes/sizes.module';
 
 @Module({
   imports: [
@@ -33,6 +36,9 @@ import { StorageModule } from './storage/storage.module';
     StocksModule,
     RabbitmqModule,
     StorageModule,
+    CategoriesModule,
+    ColorsModule,
+    SizesModule,
   ],
 })
 export class AppModule {}

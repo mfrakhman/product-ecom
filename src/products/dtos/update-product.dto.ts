@@ -1,20 +1,29 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { Category } from '../entities/product.entity';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateProductDto {
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   name?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  slug?: string;
+
+  @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiProperty({ enum: Category, required: false })
+  @ApiPropertyOptional()
   @IsOptional()
-  @IsEnum(Category)
-  category?: Category;
+  @IsUUID()
+  categoryId?: string;
+
+  @ApiPropertyOptional({ description: 'apparel | footwear_uk | waist | null' })
+  @IsOptional()
+  @IsString()
+  sizeGroup?: string;
 }

@@ -1,57 +1,66 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
+  CreateDateColumn,
   DeleteDateColumn,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Product } from '../../products/entities/product.entity';
 import { Stock } from '../../stocks/entities/stock.entity';
+import { Color } from '../../colors/entities/color.entity';
+import { Size } from '../../sizes/entities/size.entity';
 
-@Entity()
+@Entity('skus')
 export class Sku {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  @Column({ name: 'product_id' })
+  productId!: string;
+
+  @ManyToOne(() => Product, (p) => p.skus, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'product_id' })
+  product!: Product;
+
+  @Column({ name: 'color_id' })
+  colorId!: string;
+
+  @ManyToOne(() => Color, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'color_id' })
+  color!: Color;
+
+  @Column({ name: 'size_id', type: 'uuid', nullable: true })
+  sizeId!: string | null;
+
+  @ManyToOne(() => Size, { nullable: true, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'size_id' })
+  size!: Size | null;
 
   @Column({ unique: true })
   skuCode!: string;
 
   @Column()
-  name!: string;
-
-  @Column({ type: 'text', nullable: true })
-  description!: string;
-
-  @Column({ type: 'text', nullable: true })
-  size!: string;
-
-  @Column({ type: 'text', nullable: true })
-  color!: string;
-
-  @Column('decimal', { precision: 12, scale: 2, transformer: {
-    to: (v: number) => v,
-    from: (v: string) => parseFloat(v),
-  }})
   price!: number;
+
+  @Column({ type: 'int', nullable: true })
+  compareAt!: number | null;
 
   @Column({ default: true })
   isActive!: boolean;
 
-  @Column({ type: 'text', nullable: true })
-  imageUrl!: string | null;
+  @OneToOne(() => Stock, (stock) => stock.sku)
+  stock!: Stock;
 
-  @Column({ type: 'text', nullable: true })
-  imageObject!: string | null;
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
 
   @DeleteDateColumn()
   deletedAt!: Date | null;
-
-  @ManyToOne(() => Product, (product) => product.skus, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'product_id' })
-  product!: Product;
-
-  @OneToOne(() => Stock, (stock) => stock.sku)
-  stock!: Stock;
 }
