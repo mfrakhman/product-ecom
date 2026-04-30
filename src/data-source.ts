@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { DataSource } from 'typeorm';
 import { Product } from './products/entities/product.entity';
 import { ProductColorImage } from './products/entities/product-color-image.entity';
