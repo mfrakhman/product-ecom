@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { AppDataSource } from '../data-source';
 import { Category } from '../categories/entities/category.entity';
 import { Color } from '../colors/entities/color.entity';
