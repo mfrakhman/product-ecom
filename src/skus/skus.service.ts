@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { SkusRepository } from './repositories/skus.repository';
 import { CreateSkuDto } from './dtos/create-sku.dto';
+import { UpdateSkuDto } from './dtos/update-sku.dto';
 import { ProductsRepository } from '../products/repositories/products.repository';
 import { StocksService } from '../stocks/stocks.service';
 import { DataSource } from 'typeorm';
@@ -63,6 +64,28 @@ export class SkusService {
     const available = sku.stock ? sku.stock.amount - sku.stock.reserved : null;
     (sku as any).available = available;
     return { message: 'success fetching sku', data: sku };
+  }
+
+  async update(id: string, dto: UpdateSkuDto) {
+    const sku = await this.skusRepository.findById(id);
+    if (!sku) throw new NotFoundException('SKU not found');
+
+    if (dto.skuCode && dto.skuCode !== sku.skuCode) {
+      const conflict = await this.skusRepository.findByCode(dto.skuCode);
+      if (conflict) throw new ConflictException(`SKU code "${dto.skuCode}" already exists`);
+    }
+
+    const patch: Partial<Sku> = {};
+    if (dto.skuCode   !== undefined) patch.skuCode   = dto.skuCode;
+    if (dto.colorId   !== undefined) patch.colorId   = dto.colorId;
+    if (dto.sizeId    !== undefined) patch.sizeId    = dto.sizeId ?? null;
+    if (dto.price     !== undefined) patch.price     = dto.price;
+    if (dto.compareAt !== undefined) patch.compareAt = dto.compareAt ?? null;
+    if (dto.isActive  !== undefined) patch.isActive  = dto.isActive;
+
+    await this.skusRepository.update(id, patch);
+    const updated = await this.skusRepository.findById(id);
+    return { message: 'SKU updated successfully', data: updated };
   }
 
   async restockSku(skuId: string, dto: restockSkuDto) {

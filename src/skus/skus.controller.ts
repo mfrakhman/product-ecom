@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Get,
+  Patch,
   Delete,
   Body,
   Param,
@@ -12,6 +13,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { SkusService } from './skus.service';
 import { CreateSkuDto } from './dtos/create-sku.dto';
+import { UpdateSkuDto } from './dtos/update-sku.dto';
 import { restockSkuDto } from './dtos/restock-sku.dto';
 
 @ApiTags('SKUs')
@@ -37,6 +39,11 @@ export class SkusController {
   @Post('/validate')
   async validateSkus(@Body() body: { skuIds: string[] }) {
     return this.skusService.validateSkus(body.skuIds);
+  }
+
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() dto: UpdateSkuDto) {
+    return this.skusService.update(id, dto);
   }
 
   @Post(':skuId/restock')
