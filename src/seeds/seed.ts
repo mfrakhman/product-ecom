@@ -52,32 +52,15 @@ async function seedColors() {
 async function seedSizes() {
   const repo = AppDataSource.getRepository(Size);
 
+  const apparelNames = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  const pantsWaists  = Array.from({ length: 13 }, (_, i) => 26 + i * 2); // 26,28…50
+  const shoeEUs      = Array.from({ length: 13 }, (_, i) => 35 + i);     // 35…47
+
   const sizes = [
-    // Apparel
-    { sizeGroup: 'apparel', name: 'XS',  slug: 'xs',  sortOrder: 1 },
-    { sizeGroup: 'apparel', name: 'S',   slug: 's',   sortOrder: 2 },
-    { sizeGroup: 'apparel', name: 'M',   slug: 'm',   sortOrder: 3 },
-    { sizeGroup: 'apparel', name: 'L',   slug: 'l',   sortOrder: 4 },
-    { sizeGroup: 'apparel', name: 'XL',  slug: 'xl',  sortOrder: 5 },
-    { sizeGroup: 'apparel', name: 'XXL', slug: 'xxl', sortOrder: 6 },
-
-    // Footwear (UK)
-    { sizeGroup: 'footwear_uk', name: 'UK 5',  slug: 'uk-5',  sortOrder: 1 },
-    { sizeGroup: 'footwear_uk', name: 'UK 6',  slug: 'uk-6',  sortOrder: 2 },
-    { sizeGroup: 'footwear_uk', name: 'UK 7',  slug: 'uk-7',  sortOrder: 3 },
-    { sizeGroup: 'footwear_uk', name: 'UK 8',  slug: 'uk-8',  sortOrder: 4 },
-    { sizeGroup: 'footwear_uk', name: 'UK 9',  slug: 'uk-9',  sortOrder: 5 },
-    { sizeGroup: 'footwear_uk', name: 'UK 10', slug: 'uk-10', sortOrder: 6 },
-    { sizeGroup: 'footwear_uk', name: 'UK 11', slug: 'uk-11', sortOrder: 7 },
-    { sizeGroup: 'footwear_uk', name: 'UK 12', slug: 'uk-12', sortOrder: 8 },
-
-    // Waist
-    { sizeGroup: 'waist', name: 'W28', slug: 'w-28', sortOrder: 1 },
-    { sizeGroup: 'waist', name: 'W30', slug: 'w-30', sortOrder: 2 },
-    { sizeGroup: 'waist', name: 'W32', slug: 'w-32', sortOrder: 3 },
-    { sizeGroup: 'waist', name: 'W34', slug: 'w-34', sortOrder: 4 },
-    { sizeGroup: 'waist', name: 'W36', slug: 'w-36', sortOrder: 5 },
-    { sizeGroup: 'waist', name: 'W38', slug: 'w-38', sortOrder: 6 },
+    ...apparelNames.map((n, i) => ({ sizeGroup: 'apparel',     name: n,         slug: n.toLowerCase(), sortOrder: i + 1 })),
+    ...pantsWaists.map((w, i)  => ({ sizeGroup: 'pants',       name: String(w), slug: `w${w}`,         sortOrder: i + 1 })),
+    ...shoeEUs.map((e, i)      => ({ sizeGroup: 'shoes',       name: String(e), slug: `eu${e}`,        sortOrder: i + 1 })),
+    { sizeGroup: 'accessories', name: 'OS', slug: 'os', sortOrder: 1 },
   ];
 
   for (const size of sizes) {
@@ -121,13 +104,15 @@ async function seedCategories() {
   const wDenim        = await insert({ name: 'Denim',        slug: 'womens-denim',        parentId: women!.id, displayOrder: 2 });
   const wTrousers     = await insert({ name: 'Trousers',     slug: 'womens-trousers',     parentId: women!.id, displayOrder: 3 });
   const wBags         = await insert({ name: 'Bags',         slug: 'womens-bags',         parentId: women!.id, displayOrder: 4 });
-  const wAccessories  = await insert({ name: 'Accessories',  slug: 'womens-accessories',  parentId: women!.id, displayOrder: 5 });
+  await insert({ name: 'Accessories',  slug: 'womens-accessories',  parentId: women!.id, displayOrder: 5 });
+  await insert({ name: 'Shoes',        slug: 'womens-shoes',        parentId: women!.id, displayOrder: 6 });
 
   // Men
   const mOuterwear    = await insert({ name: 'Outerwear',    slug: 'mens-outerwear',      parentId: men!.id, displayOrder: 0 });
   const mKnitwear     = await insert({ name: 'Knitwear',     slug: 'mens-knitwear',       parentId: men!.id, displayOrder: 1 });
   const mTrousers     = await insert({ name: 'Trousers',     slug: 'mens-trousers',       parentId: men!.id, displayOrder: 2 });
   const mBags         = await insert({ name: 'Bags',         slug: 'mens-bags',           parentId: men!.id, displayOrder: 3 });
+  await insert({ name: 'Shoes',        slug: 'mens-shoes',          parentId: men!.id, displayOrder: 4 });
 
   // ── Level 2: Types ───────────────────────────────────────────────
 
