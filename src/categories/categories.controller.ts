@@ -1,29 +1,19 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-} from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
 
-@ApiTags('Categories')
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
-  getTree() {
-    return this.categoriesService.findTree();
+  findAll(@Query('genderId') genderId?: string, @Query('groupId') groupId?: string) {
+    return this.categoriesService.findAll(genderId, groupId);
   }
 
   @Get(':id')
-  getById(@Param('id') id: string) {
+  findById(@Param('id') id: string) {
     return this.categoriesService.findById(id);
   }
 

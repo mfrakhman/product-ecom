@@ -22,7 +22,8 @@
     "migration:run": "ts-node --project tsconfig.cli.json -r tsconfig-paths/register ./node_modules/typeorm/cli migration:run -d src/data-source.ts",
     "migration:revert": "ts-node --project tsconfig.cli.json -r tsconfig-paths/register ./node_modules/typeorm/cli migration:revert -d src/data-source.ts",
     "migration:show": "ts-node --project tsconfig.cli.json -r tsconfig-paths/register ./node_modules/typeorm/cli migration:show -d src/data-source.ts",
-    "seed": "ts-node --project tsconfig.cli.json -r tsconfig-paths/register src/seeds/seed.ts"
+    "seed": "ts-node --project tsconfig.cli.json -r tsconfig-paths/register src/seeds/seed.ts",
+    "seed:prod": "ts-node --project tsconfig.cli.json -r tsconfig-paths/register -r dotenv/config src/seeds/seed.ts dotenv_config_path=.env.production"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

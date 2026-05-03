@@ -1,21 +1,18 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 
 export class CreateCategoryDto {
-  @ApiProperty()
   @IsString()
   name!: string;
 
-  @ApiProperty()
   @IsString()
   slug!: string;
 
-  @ApiPropertyOptional({ description: 'Parent category id — omit for top-level' })
-  @IsOptional()
   @IsUUID()
-  parentId?: string;
+  genderId!: string;
 
-  @ApiPropertyOptional({ default: 0 })
+  @IsUUID()
+  groupId!: string;
+
   @IsOptional()
   @IsInt()
   @Min(0)

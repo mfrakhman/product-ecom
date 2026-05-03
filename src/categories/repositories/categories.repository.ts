@@ -10,17 +10,24 @@ export class CategoriesRepository {
     private readonly repo: Repository<Category>,
   ) {}
 
-  findAll() {
-    return this.repo.find({ order: { displayOrder: 'ASC' } });
+  findAll(where?: Partial<Pick<Category, 'genderId' | 'groupId'>>) {
+    return this.repo.find({
+      where,
+      relations: ['gender', 'group'],
+      order: { displayOrder: 'ASC' },
+    });
   }
 
   findById(id: string) {
-    return this.repo.findOne({ where: { id } });
+    return this.repo.findOne({ where: { id }, relations: ['gender', 'group'] });
+  }
+
+  findBySlug(slug: string) {
+    return this.repo.findOne({ where: { slug }, relations: ['gender', 'group'] });
   }
 
   create(data: Partial<Category>) {
-    const category = this.repo.create(data);
-    return this.repo.save(category);
+    return this.repo.save(this.repo.create(data));
   }
 
   update(id: string, data: Partial<Category>) {
@@ -29,9 +36,5 @@ export class CategoriesRepository {
 
   delete(id: string) {
     return this.repo.delete(id);
-  }
-
-  countChildren(parentId: string) {
-    return this.repo.count({ where: { parentId } });
   }
 }

@@ -7,6 +7,8 @@ import { StocksModule } from './stocks/stocks.module';
 import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
 import { StorageModule } from './storage/storage.module';
 import { CategoriesModule } from './categories/categories.module';
+import { GendersModule } from './genders/genders.module';
+import { CategoryGroupsModule } from './category-groups/category-groups.module';
 import { ColorsModule } from './colors/colors.module';
 import { SizesModule } from './sizes/sizes.module';
 
@@ -38,6 +40,8 @@ import { SizesModule } from './sizes/sizes.module';
     RabbitmqModule,
     StorageModule,
     CategoriesModule,
+    GendersModule,
+    CategoryGroupsModule,
     ColorsModule,
     SizesModule,
   ],

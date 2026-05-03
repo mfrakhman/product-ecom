@@ -8,21 +8,27 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Product } from '../../products/entities/product.entity';
+import { Gender } from '../../genders/entities/gender.entity';
+import { CategoryGroup } from '../../category-groups/entities/category-group.entity';
 
 @Entity('categories')
 export class Category {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ name: 'parent_id', type: 'uuid', nullable: true })
-  parentId!: string | null;
+  @Column({ name: 'gender_id', type: 'uuid' })
+  genderId!: string;
 
-  @ManyToOne(() => Category, (c) => c.children, { nullable: true })
-  @JoinColumn({ name: 'parent_id' })
-  parent!: Category | null;
+  @ManyToOne(() => Gender, (g) => g.categories, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'gender_id' })
+  gender!: Gender;
 
-  @OneToMany(() => Category, (c) => c.parent)
-  children!: Category[];
+  @Column({ name: 'group_id', type: 'uuid' })
+  groupId!: string;
+
+  @ManyToOne(() => CategoryGroup, (g) => g.categories, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'group_id' })
+  group!: CategoryGroup;
 
   @OneToMany(() => Product, (p) => p.category)
   products!: Product[];
