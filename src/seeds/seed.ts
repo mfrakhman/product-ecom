@@ -175,6 +175,17 @@ async function seedCategories() {
     { name: 'Underwear', slug: 'womens-underwear', gender: 'women', group: 'underwear', displayOrder: 1 },
     { name: 'Socks',     slug: 'womens-socks',     gender: 'women', group: 'underwear', displayOrder: 2 },
 
+    // ── Men · Accessories ────────────────────────────────────────────
+    { name: 'Watches',    slug: 'mens-watches',    gender: 'men', group: 'accessories', displayOrder: 1 },
+    { name: 'Ties',       slug: 'mens-ties',       gender: 'men', group: 'accessories', displayOrder: 2 },
+    { name: 'Sunglasses', slug: 'mens-sunglasses', gender: 'men', group: 'accessories', displayOrder: 3 },
+
+    // ── Women · Accessories ──────────────────────────────────────────
+    { name: 'Jewelry',           slug: 'womens-jewelry',           gender: 'women', group: 'accessories', displayOrder: 1 },
+    { name: 'Watches',           slug: 'womens-watches',           gender: 'women', group: 'accessories', displayOrder: 2 },
+    { name: 'Sunglasses',        slug: 'womens-sunglasses',        gender: 'women', group: 'accessories', displayOrder: 3 },
+    { name: 'Hair Accessories',  slug: 'womens-hair-accessories',  gender: 'women', group: 'accessories', displayOrder: 4 },
+
     // ── Unisex · Accessories ─────────────────────────────────────────
     { name: 'Bags',      slug: 'bags',      gender: 'unisex', group: 'accessories', displayOrder: 1 },
     { name: 'Backpacks', slug: 'backpacks', gender: 'unisex', group: 'accessories', displayOrder: 2 },
