@@ -132,6 +132,7 @@ async function seedCategories() {
     { name: 'Jackets',   slug: 'mens-jackets',   gender: 'men', group: 'outerwear', displayOrder: 1 },
     { name: 'Coats',     slug: 'mens-coats',     gender: 'men', group: 'outerwear', displayOrder: 2 },
     { name: 'Blazers',   slug: 'mens-blazers',   gender: 'men', group: 'outerwear', displayOrder: 3 },
+    { name: 'Vests',     slug: 'mens-vests',     gender: 'men', group: 'outerwear', displayOrder: 4 },
 
     // ── Men · Shoes ──────────────────────────────────────────────────
     { name: 'Sneakers',  slug: 'mens-sneakers',  gender: 'men', group: 'shoes', displayOrder: 1 },
