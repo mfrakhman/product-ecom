@@ -88,11 +88,12 @@ async function seedCategoryGroups() {
   const repo = AppDataSource.getRepository(CategoryGroup);
 
   const groups = [
-    { name: 'Top',         slug: 'top',         displayOrder: 1 },
-    { name: 'Bottom',      slug: 'bottom',      displayOrder: 2 },
-    { name: 'Outerwear',   slug: 'outerwear',   displayOrder: 3 },
-    { name: 'Shoes',       slug: 'shoes',       displayOrder: 4 },
-    { name: 'Accessories', slug: 'accessories', displayOrder: 5 },
+    { name: 'Top',        slug: 'top',        displayOrder: 1 },
+    { name: 'Bottom',     slug: 'bottom',     displayOrder: 2 },
+    { name: 'Outerwear',  slug: 'outerwear',  displayOrder: 3 },
+    { name: 'Shoes',      slug: 'shoes',      displayOrder: 4 },
+    { name: 'Accessories',slug: 'accessories',displayOrder: 5 },
+    { name: 'Underwear',  slug: 'underwear',  displayOrder: 6 },
   ];
 
   for (const g of groups) {
@@ -113,15 +114,73 @@ async function seedCategories() {
   const groupBySlug  = new Map((await groupRepo.find()).map(g => [g.slug, g]));
 
   const categories = [
-    { name: 'T-Shirts',  slug: 'mens-t-shirts',   gender: 'men',    group: 'top',         displayOrder: 1 },
-    { name: 'Jackets',   slug: 'mens-jackets',     gender: 'men',    group: 'outerwear',   displayOrder: 2 },
-    { name: 'Trousers',  slug: 'mens-trousers',    gender: 'men',    group: 'bottom',      displayOrder: 3 },
-    { name: 'Shoes',     slug: 'mens-shoes',       gender: 'men',    group: 'shoes',       displayOrder: 4 },
-    { name: 'T-Shirts',  slug: 'womens-t-shirts',  gender: 'women',  group: 'top',         displayOrder: 1 },
-    { name: 'Outerwear', slug: 'womens-outerwear', gender: 'women',  group: 'outerwear',   displayOrder: 2 },
-    { name: 'Trousers',  slug: 'womens-trousers',  gender: 'women',  group: 'bottom',      displayOrder: 3 },
-    { name: 'Shoes',     slug: 'womens-shoes',     gender: 'women',  group: 'shoes',       displayOrder: 4 },
-    { name: 'Bags',      slug: 'bags',             gender: 'unisex', group: 'accessories', displayOrder: 1 },
+    // ── Men · Top ────────────────────────────────────────────────────
+    { name: 'T-Shirts',  slug: 'mens-t-shirts',  gender: 'men', group: 'top', displayOrder: 1 },
+    { name: 'Shirts',    slug: 'mens-shirts',    gender: 'men', group: 'top', displayOrder: 2 },
+    { name: 'Polos',     slug: 'mens-polos',     gender: 'men', group: 'top', displayOrder: 3 },
+    { name: 'Hoodies',   slug: 'mens-hoodies',   gender: 'men', group: 'top', displayOrder: 4 },
+    { name: 'Sweaters',  slug: 'mens-sweaters',  gender: 'men', group: 'top', displayOrder: 5 },
+    { name: 'Tank Tops', slug: 'mens-tank-tops', gender: 'men', group: 'top', displayOrder: 6 },
+
+    // ── Men · Bottom ─────────────────────────────────────────────────
+    { name: 'Trousers',  slug: 'mens-trousers',  gender: 'men', group: 'bottom', displayOrder: 1 },
+    { name: 'Jeans',     slug: 'mens-jeans',     gender: 'men', group: 'bottom', displayOrder: 2 },
+    { name: 'Shorts',    slug: 'mens-shorts',    gender: 'men', group: 'bottom', displayOrder: 3 },
+    { name: 'Joggers',   slug: 'mens-joggers',   gender: 'men', group: 'bottom', displayOrder: 4 },
+
+    // ── Men · Outerwear ──────────────────────────────────────────────
+    { name: 'Jackets',   slug: 'mens-jackets',   gender: 'men', group: 'outerwear', displayOrder: 1 },
+    { name: 'Coats',     slug: 'mens-coats',     gender: 'men', group: 'outerwear', displayOrder: 2 },
+    { name: 'Blazers',   slug: 'mens-blazers',   gender: 'men', group: 'outerwear', displayOrder: 3 },
+
+    // ── Men · Shoes ──────────────────────────────────────────────────
+    { name: 'Sneakers',  slug: 'mens-sneakers',  gender: 'men', group: 'shoes', displayOrder: 1 },
+    { name: 'Boots',     slug: 'mens-boots',     gender: 'men', group: 'shoes', displayOrder: 2 },
+    { name: 'Loafers',   slug: 'mens-loafers',   gender: 'men', group: 'shoes', displayOrder: 3 },
+    { name: 'Sandals',   slug: 'mens-sandals',   gender: 'men', group: 'shoes', displayOrder: 4 },
+
+    // ── Men · Underwear ──────────────────────────────────────────────
+    { name: 'Underwear', slug: 'mens-underwear', gender: 'men', group: 'underwear', displayOrder: 1 },
+    { name: 'Socks',     slug: 'mens-socks',     gender: 'men', group: 'underwear', displayOrder: 2 },
+
+    // ── Women · Top ──────────────────────────────────────────────────
+    { name: 'T-Shirts',  slug: 'womens-t-shirts',  gender: 'women', group: 'top', displayOrder: 1 },
+    { name: 'Blouses',   slug: 'womens-blouses',   gender: 'women', group: 'top', displayOrder: 2 },
+    { name: 'Sweaters',  slug: 'womens-sweaters',  gender: 'women', group: 'top', displayOrder: 3 },
+    { name: 'Hoodies',   slug: 'womens-hoodies',   gender: 'women', group: 'top', displayOrder: 4 },
+    { name: 'Tank Tops', slug: 'womens-tank-tops', gender: 'women', group: 'top', displayOrder: 5 },
+
+    // ── Women · Bottom ───────────────────────────────────────────────
+    { name: 'Trousers',  slug: 'womens-trousers',  gender: 'women', group: 'bottom', displayOrder: 1 },
+    { name: 'Jeans',     slug: 'womens-jeans',     gender: 'women', group: 'bottom', displayOrder: 2 },
+    { name: 'Skirts',    slug: 'womens-skirts',    gender: 'women', group: 'bottom', displayOrder: 3 },
+    { name: 'Shorts',    slug: 'womens-shorts',    gender: 'women', group: 'bottom', displayOrder: 4 },
+    { name: 'Leggings',  slug: 'womens-leggings',  gender: 'women', group: 'bottom', displayOrder: 5 },
+
+    // ── Women · Outerwear ────────────────────────────────────────────
+    { name: 'Jackets',   slug: 'womens-jackets',   gender: 'women', group: 'outerwear', displayOrder: 1 },
+    { name: 'Coats',     slug: 'womens-coats',     gender: 'women', group: 'outerwear', displayOrder: 2 },
+    { name: 'Blazers',   slug: 'womens-blazers',   gender: 'women', group: 'outerwear', displayOrder: 3 },
+    { name: 'Vests',     slug: 'womens-vests',     gender: 'women', group: 'outerwear', displayOrder: 4 },
+
+    // ── Women · Shoes ────────────────────────────────────────────────
+    { name: 'Sneakers',  slug: 'womens-sneakers',  gender: 'women', group: 'shoes', displayOrder: 1 },
+    { name: 'Boots',     slug: 'womens-boots',     gender: 'women', group: 'shoes', displayOrder: 2 },
+    { name: 'Heels',     slug: 'womens-heels',     gender: 'women', group: 'shoes', displayOrder: 3 },
+    { name: 'Sandals',   slug: 'womens-sandals',   gender: 'women', group: 'shoes', displayOrder: 4 },
+    { name: 'Flats',     slug: 'womens-flats',     gender: 'women', group: 'shoes', displayOrder: 5 },
+
+    // ── Women · Underwear ────────────────────────────────────────────
+    { name: 'Underwear', slug: 'womens-underwear', gender: 'women', group: 'underwear', displayOrder: 1 },
+    { name: 'Socks',     slug: 'womens-socks',     gender: 'women', group: 'underwear', displayOrder: 2 },
+
+    // ── Unisex · Accessories ─────────────────────────────────────────
+    { name: 'Bags',      slug: 'bags',      gender: 'unisex', group: 'accessories', displayOrder: 1 },
+    { name: 'Backpacks', slug: 'backpacks', gender: 'unisex', group: 'accessories', displayOrder: 2 },
+    { name: 'Wallets',   slug: 'wallets',   gender: 'unisex', group: 'accessories', displayOrder: 3 },
+    { name: 'Belts',     slug: 'belts',     gender: 'unisex', group: 'accessories', displayOrder: 4 },
+    { name: 'Hats',      slug: 'hats',      gender: 'unisex', group: 'accessories', displayOrder: 5 },
+    { name: 'Scarves',   slug: 'scarves',   gender: 'unisex', group: 'accessories', displayOrder: 6 },
   ];
 
   for (const cat of categories) {
