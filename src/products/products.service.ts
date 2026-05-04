@@ -67,8 +67,8 @@ export class ProductsService {
     });
   }
 
-  async findAll(page = 1, limit = 10, query?: string) {
-    return this.productsRepository.findAll(page, limit, query);
+  async findAll(page = 1, limit = 10, query?: string, slug?: string) {
+    return this.productsRepository.findAll(page, limit, query, slug);
   }
 
   async findById(id: string) {

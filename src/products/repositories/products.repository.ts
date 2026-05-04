@@ -15,9 +15,11 @@ export class ProductsRepository {
     return this.productRepository.save(newProduct);
   }
 
-  findAll(page = 1, limit = 10, query?: string) {
+  findAll(page = 1, limit = 10, query?: string, slug?: string) {
     const skip = (page - 1) * limit;
-    const where = query ? { name: ILike(`%${query}%`) } : {};
+    const where: any = {};
+    if (query) where.name = ILike(`%${query}%`);
+    if (slug) where.slug = slug;
     return this.productRepository.find({
       where,
       skip,

@@ -31,8 +31,9 @@ export class ProductsController {
     @Query('page') page = '1',
     @Query('limit') limit = '10',
     @Query('query') query?: string,
+    @Query('slug') slug?: string,
   ) {
-    return this.productsService.findAll(Number(page), Number(limit), query);
+    return this.productsService.findAll(Number(page), Number(limit), query, slug);
   }
 
   @Get(':id')
